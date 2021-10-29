@@ -4,6 +4,7 @@ const { apiKey } = require('./config.json');
 const { apiSecret } = require('./config.json');
 const https = require("https");
 const Binance = require('node-binance-api');
+const prefix = "$";
 
 const client = new Client({ 
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] 
@@ -21,8 +22,16 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
     let ticker = await binance.prices();
-    if (msg.content === "XRP") {
-        msg.reply(`XRPUSDT: ${ticker.XRPUSDT}`)
+    if (!msg.content.startsWith(prefix)) {
+        return;
+    } else {
+        command = msg.content.slice();
+        command = command.replace(prefix,'');
+        command = command.split(" ");
+        if (command[0] == "ticker") {
+            command[1] = command[1].toUpperCase();
+            msg.reply(command[1] + `: ${ticker[command[1]]}`);
+        }
     }
 });
 
